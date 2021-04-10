@@ -33,7 +33,9 @@ func (wc *WsCaller) Call(ctx context.Context, action string, data map[string]int
 	// 处理请求头
 	opts := &websocket.DialOptions{}
 	opts.HTTPHeader = http.Header{}
-	opts.HTTPHeader.Add("Authorization", "Bearer "+wc.access_token)
+	if wc.access_token != "" {
+		opts.HTTPHeader.Add("Authorization", "Bearer "+wc.access_token)
+	}
 
 	// 建立websocket连接
 	c, resp, err := websocket.Dial(ctx, wc.url, opts)

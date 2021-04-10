@@ -56,7 +56,9 @@ func (wl *WsListener) serve() {
 	// 处理请求头
 	opts := &websocket.DialOptions{}
 	opts.HTTPHeader = http.Header{}
-	opts.HTTPHeader.Add("Authorization", "Bearer "+wl.access_token)
+	if wl.access_token != "" {
+		opts.HTTPHeader.Add("Authorization", "Bearer "+wl.access_token)
+	}
 
 	// 建立websocket连接
 	c, resp, err := websocket.Dial(wl.ctx, wl.url, opts)
