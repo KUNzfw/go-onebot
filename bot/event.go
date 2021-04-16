@@ -9,10 +9,15 @@ const (
 	TypePrivateMesssage int32 = iota
 )
 
-func PollEvent(bot listener.EventListener) (event_type int32, event_data interface{}, err error) {
+type Event struct {
+	Type int32
+	Data interface{}
+}
+
+func PollEvent(bot listener.EventListener) (event Event, err error) {
 	data, err := bot.Poll()
-	event_type, event_data = parseEvent(data)
-	return event_type, event_data, err
+	event_type, event_data := parseEvent(data)
+	return Event{event_type, event_data}, err
 }
 
 func parseEvent(data map[string]interface{}) (int32, interface{}) {

@@ -1,13 +1,11 @@
 package bot
 
 import (
-	"context"
-
 	"github.com/KUNzfw/go-onebot/caller"
 )
 
-func SendPrivateMessage(bot caller.ApiCaller, ctx context.Context, userId int64, message string, auto_escape bool) (messageId int32, err error) {
-	rep, cerr := bot.Call(ctx, "send_private_msg", map[string]interface{}{
+func SendPrivateMessage(bot caller.ApiCaller, userId int64, message string, auto_escape bool) (messageId int32, err error) {
+	rep, cerr := bot.Call("send_private_msg", map[string]interface{}{
 		"user_id":     userId,
 		"message":     message,
 		"auto_escape": auto_escape,

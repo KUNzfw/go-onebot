@@ -19,7 +19,7 @@ type WsListener struct {
 	is_serve     bool
 }
 
-func CreateWsListener(ctx context.Context, url string, access_token string) *WsListener {
+func CreateWsListener(url string, access_token string, ctx context.Context) *WsListener {
 	wschan := make(chan map[string]interface{}, 64)
 	err_chan := make(chan error, 8)
 	return &WsListener{

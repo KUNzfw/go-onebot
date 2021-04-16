@@ -16,18 +16,20 @@ const ECHO_FLAG string = "go-onebot"
 type WsCaller struct {
 	url          string
 	access_token string
+	ctx          context.Context
 }
 
-func CreateWsCaller(url string, access_token string) *WsCaller {
+func CreateWsCaller(url string, access_token string, ctx context.Context) *WsCaller {
 	return &WsCaller{
 		url:          url,
 		access_token: access_token,
+		ctx:          ctx,
 	}
 }
 
-func (wc *WsCaller) Call(ctx context.Context, action string, data map[string]interface{}) (map[string]interface{}, error) {
+func (wc *WsCaller) Call(action string, data map[string]interface{}) (map[string]interface{}, error) {
 	// 设置超时
-	ctx, cancel := context.WithTimeout(ctx, TIME_OUT)
+	ctx, cancel := context.WithTimeout(wc.ctx, TIME_OUT)
 	defer cancel()
 
 	// 处理请求头
