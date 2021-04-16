@@ -1,7 +1,7 @@
 /*
  * @Date: 2021-04-16 19:53:00
  * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 21:03:50
+ * @LastEditTime: 2021-04-16 21:55:18
  * @FilePath: \go-onebot\caller\wscaller.go
  */
 package caller
@@ -62,14 +62,14 @@ func (wc *WsCaller) Call(action string, data map[string]interface{}, result inte
 
 	// 检查鉴权错误
 	if resp.StatusCode == 401 {
-		return errors.New("failed to connect: 401 unauthorized, maybe due to empty access token")
+		return errors.New("API服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
 	}
 	if resp.StatusCode == 403 {
-		return errors.New("failed to connect: maybe due to inconsistent access token")
+		return errors.New("API服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
 	}
 	// 其他错误
 	if err != nil {
-		return err
+		return errors.New("API服务器连接失败: " + err.Error())
 	}
 
 	defer c.Close(websocket.StatusInternalError, "internal error")
@@ -84,7 +84,7 @@ func (wc *WsCaller) Call(action string, data map[string]interface{}, result inte
 	// 发送数据
 	err = wsjson.Write(ctx, c, wsdata)
 	if err != nil {
-		return err
+		return errors.New("向API服务器发送数据失败: " + err.Error())
 	}
 
 	raw_result := make(map[string]interface{})
@@ -92,7 +92,7 @@ func (wc *WsCaller) Call(action string, data map[string]interface{}, result inte
 	for {
 		err = wsjson.Read(ctx, c, &raw_result)
 		if err != nil {
-			return err
+			return errors.New("从服务器读取数据失败: " + err.Error())
 		}
 		if raw_result["echo"] == ECHO_FLAG {
 			break
@@ -106,15 +106,15 @@ func (wc *WsCaller) Call(action string, data map[string]interface{}, result inte
 		Data: result,
 	}
 	if err := mapstructure.Decode(raw_result, &resp_result); err != nil {
-		return errors.New("failed to call: " + err.Error())
+		return errors.New("解析API调用返回失败: " + err.Error())
 	}
 
 	// 检测400和404错误
 	switch resp_result.Retcode {
 	case 1404:
-		return errors.New("failed to call: 404 not found")
+		return errors.New("API调用失败: 404 Not Found")
 	case 1400:
-		return errors.New("failed to call: 400 bad request")
+		return errors.New("API调用失败: 400 Bad Request")
 	}
 
 	return nil

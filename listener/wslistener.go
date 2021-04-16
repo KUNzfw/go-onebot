@@ -1,7 +1,7 @@
 /*
  * @Date: 2021-04-16 19:53:00
  * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 21:43:20
+ * @LastEditTime: 2021-04-16 21:48:38
  * @FilePath: \go-onebot\listener\wslistener.go
  */
 package listener
@@ -74,16 +74,16 @@ func (wl *WsListener) serve() {
 
 	// 其他错误
 	if err != nil {
-		wl.err_chan <- err
+		wl.err_chan <- errors.New("事件服务器连接失败: " + err.Error())
 		return
 	}
 	// 检查鉴权错误
 	if resp.StatusCode == 401 {
-		wl.err_chan <- errors.New("failed to connect: 401 unauthorized, maybe due to empty access token")
+		wl.err_chan <- errors.New("事件服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
 		return
 	}
 	if resp.StatusCode == 403 {
-		wl.err_chan <- errors.New("failed to connect: 403 forbidden, maybe due to inconsistent access token")
+		wl.err_chan <- errors.New("事件服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
 		return
 	}
 
@@ -101,7 +101,7 @@ func (wl *WsListener) serve() {
 			data := make(map[string]interface{})
 			err := wsjson.Read(wl.ctx, c, &data)
 			if err != nil {
-				wl.err_chan <- err
+				wl.err_chan <- errors.New("事件读取错误: " + err.Error())
 				return
 			}
 			wl.send_chan <- data
