@@ -1,7 +1,7 @@
 /*
  * @Date: 2021-04-16 19:53:00
  * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 20:10:26
+ * @LastEditTime: 2021-04-16 21:37:25
  * @FilePath: \go-onebot\bot\utils.go
  */
 package bot
@@ -45,8 +45,8 @@ func NewWsBot(url string, opts *WsBotOptions) *WsBot {
 }
 
 // Call 实现Call接口
-func (bot *WsBot) Call(action string, data map[string]interface{}) (map[string]interface{}, error) {
-	return bot.caller.Call(action, data)
+func (bot *WsBot) Call(action string, data map[string]interface{}, result interface{}) error {
+	return bot.caller.Call(action, data, result)
 }
 
 // Poll 实现Poll接口
