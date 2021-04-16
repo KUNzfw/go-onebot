@@ -1,3 +1,9 @@
+/*
+ * @Date: 2021-04-16 19:53:00
+ * @LastEditors: KUNzfw
+ * @LastEditTime: 2021-04-16 20:14:20
+ * @FilePath: \go-onebot\caller\wscaller.go
+ */
 package caller
 
 import (
@@ -13,12 +19,14 @@ import (
 const TIME_OUT time.Duration = time.Second * 10
 const ECHO_FLAG string = "go-onebot"
 
+// 通过websocket进行api调用的封装
 type WsCaller struct {
 	url          string
 	access_token string
 	ctx          context.Context
 }
 
+// CreateWsCaller 创建WsCaller实例
 func CreateWsCaller(url string, access_token string, ctx context.Context) *WsCaller {
 	return &WsCaller{
 		url:          url,
@@ -27,6 +35,7 @@ func CreateWsCaller(url string, access_token string, ctx context.Context) *WsCal
 	}
 }
 
+// Call 实现Call接口
 func (wc *WsCaller) Call(action string, data map[string]interface{}) (map[string]interface{}, error) {
 	// 设置超时
 	ctx, cancel := context.WithTimeout(wc.ctx, TIME_OUT)

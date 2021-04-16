@@ -1,3 +1,9 @@
+/*
+ * @Date: 2021-04-16 19:53:00
+ * @LastEditors: KUNzfw
+ * @LastEditTime: 2021-04-16 20:14:55
+ * @FilePath: \go-onebot\listener\wslistener.go
+ */
 package listener
 
 import (
@@ -9,6 +15,7 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
+// 通过websocket进行事件监听的封装
 type WsListener struct {
 	ctx          context.Context
 	url          string
@@ -19,6 +26,7 @@ type WsListener struct {
 	is_serve     bool
 }
 
+// CreateWsListener 创建WsListener实例
 func CreateWsListener(url string, access_token string, ctx context.Context) *WsListener {
 	wschan := make(chan map[string]interface{}, 64)
 	err_chan := make(chan error, 8)
@@ -33,6 +41,7 @@ func CreateWsListener(url string, access_token string, ctx context.Context) *WsL
 	}
 }
 
+// Poll 实现Poll接口
 func (wl *WsListener) Poll() (map[string]interface{}, error) {
 	// 启动事件监听服务
 	if !wl.is_serve {

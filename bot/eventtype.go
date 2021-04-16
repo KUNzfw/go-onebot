@@ -1,5 +1,12 @@
+/*
+ * @Date: 2021-04-16 19:53:00
+ * @LastEditors: KUNzfw
+ * @LastEditTime: 2021-04-16 20:08:34
+ * @FilePath: \go-onebot\bot\eventtype.go
+ */
 package bot
 
+// 发送者
 type Sender struct {
 	UserId   int64  `mapstructure:"user_id"`
 	Nickname string `mapstructure:"nickname"`
@@ -7,6 +14,7 @@ type Sender struct {
 	Age      int32  `mapstructure:"age"`
 }
 
+// 私聊消息类型
 type EventPrivateMessage struct {
 	Time        int64  `mapstructure:"time"`
 	SelfID      int64  `mapstructure:"self_id"`

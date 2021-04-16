@@ -1,9 +1,16 @@
+/*
+ * @Date: 2021-04-16 19:53:00
+ * @LastEditors: KUNzfw
+ * @LastEditTime: 2021-04-16 20:07:43
+ * @FilePath: \go-onebot\bot\api.go
+ */
 package bot
 
 import (
 	"github.com/KUNzfw/go-onebot/caller"
 )
 
+// SendPrivateMessage 发送私聊消息
 func SendPrivateMessage(bot caller.ApiCaller, userId int64, message string, auto_escape bool) (messageId int32, err error) {
 	rep, cerr := bot.Call("send_private_msg", map[string]interface{}{
 		"user_id":     userId,
