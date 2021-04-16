@@ -1,7 +1,7 @@
 /*
  * @Date: 2021-04-16 19:53:00
  * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 20:14:55
+ * @LastEditTime: 2021-04-16 21:43:20
  * @FilePath: \go-onebot\listener\wslistener.go
  */
 package listener
@@ -72,6 +72,11 @@ func (wl *WsListener) serve() {
 	// 建立websocket连接
 	c, resp, err := websocket.Dial(wl.ctx, wl.url, opts)
 
+	// 其他错误
+	if err != nil {
+		wl.err_chan <- err
+		return
+	}
 	// 检查鉴权错误
 	if resp.StatusCode == 401 {
 		wl.err_chan <- errors.New("failed to connect: 401 unauthorized, maybe due to empty access token")
@@ -79,11 +84,6 @@ func (wl *WsListener) serve() {
 	}
 	if resp.StatusCode == 403 {
 		wl.err_chan <- errors.New("failed to connect: 403 forbidden, maybe due to inconsistent access token")
-		return
-	}
-	// 其他错误
-	if err != nil {
-		wl.err_chan <- err
 		return
 	}
 
