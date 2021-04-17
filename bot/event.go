@@ -1,12 +1,14 @@
 /*
  * @Date: 2021-04-16 19:53:00
  * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 20:08:08
+ * @LastEditTime: 2021-04-17 09:49:29
  * @FilePath: \go-onebot\bot\event.go
  */
 package bot
 
 import (
+	"errors"
+
 	"github.com/KUNzfw/go-onebot/listener"
 	"github.com/mitchellh/mapstructure"
 )
@@ -21,21 +23,34 @@ type Event struct {
 	Data interface{} // 数据
 }
 
-// PollEvent 获取事件
-func PollEvent(bot listener.EventListener) (event Event, err error) {
-	data, err := bot.Poll()
-	event_type, event_data := parseEvent(data)
-	return Event{event_type, event_data}, err
+// 事件处理器
+type EventHandler struct {
+	OnPrivateMessage func(data *EventPrivateMessage)
+}
+
+// HandleEvent 监听并处理事件
+func (handler *EventHandler) HandleEvent(bot listener.EventListener) error {
+	for {
+		rawdata, err := bot.Poll()
+		if err != nil {
+			return errors.New("监听事件时发生错误: " + err.Error())
+		}
+
+		switch parseEvent(rawdata) {
+		case TypePrivateMesssage:
+			data := &EventPrivateMessage{}
+			mapstructure.Decode(rawdata, data)
+			handler.OnPrivateMessage(data)
+		}
+	}
 }
 
 // parseEvent 解析事件
-func parseEvent(data map[string]interface{}) (int32, interface{}) {
+func parseEvent(data map[string]interface{}) int32 {
 	if data["post_type"] == "message" {
 		if data["message_type"] == "private" {
-			var result EventPrivateMessage
-			mapstructure.Decode(data, &result)
-			return TypePrivateMesssage, result
+			return TypePrivateMesssage
 		}
 	}
-	return -1, nil
+	return -1
 }
