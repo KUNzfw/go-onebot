@@ -1,9 +1,3 @@
-/*
- * @Date: 2021-04-16 19:53:00
- * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 21:48:38
- * @FilePath: \go-onebot\listener\wslistener.go
- */
 package listener
 
 import (
@@ -15,58 +9,63 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
+const (
+	wsChanCap  int = 64
+	errChanCap int = 8
+)
+
 // 通过websocket进行事件监听的封装
 type WsListener struct {
-	ctx          context.Context
-	url          string
-	access_token string
-	rec_chan     <-chan map[string]interface{}
-	send_chan    chan<- map[string]interface{}
-	err_chan     chan error
-	is_serve     bool
+	ctx         context.Context
+	url         string
+	accessToken string
+	recChan     <-chan map[string]interface{}
+	sendChan    chan<- map[string]interface{}
+	errChan     chan error
+	isServe     bool
 }
 
 // CreateWsListener 创建WsListener实例
-func CreateWsListener(url string, access_token string, ctx context.Context) *WsListener {
-	wschan := make(chan map[string]interface{}, 64)
-	err_chan := make(chan error, 8)
+func CreateWsListener(ctx context.Context, url, accessToken string) *WsListener {
+	wschan := make(chan map[string]interface{}, wsChanCap)
+	errchan := make(chan error, errChanCap)
 	return &WsListener{
-		ctx:          ctx,
-		url:          url,
-		access_token: access_token,
-		rec_chan:     wschan,
-		send_chan:    wschan,
-		err_chan:     err_chan,
-		is_serve:     false,
+		ctx:         ctx,
+		url:         url,
+		accessToken: accessToken,
+		recChan:     wschan,
+		sendChan:    wschan,
+		errChan:     errchan,
+		isServe:     false,
 	}
 }
 
 // Poll 实现Poll接口
 func (wl *WsListener) Poll() (map[string]interface{}, error) {
 	// 启动事件监听服务
-	if !wl.is_serve {
+	if !wl.isServe {
 		go wl.serve()
 	}
 
 	select {
-	case data := <-wl.rec_chan:
+	case data := <-wl.recChan:
 		return data, nil
 	case <-wl.ctx.Done():
 		return nil, nil
-	case err := <-wl.err_chan:
+	case err := <-wl.errChan:
 		return nil, err
 	}
 }
 
 func (wl *WsListener) serve() {
 	// 管理服务状态
-	wl.is_serve = true
+	wl.isServe = true
 
 	// 处理请求头
 	opts := &websocket.DialOptions{}
 	opts.HTTPHeader = http.Header{}
-	if wl.access_token != "" {
-		opts.HTTPHeader.Add("Authorization", "Bearer "+wl.access_token)
+	if wl.accessToken != "" {
+		opts.HTTPHeader.Add("Authorization", "Bearer "+wl.accessToken)
 	}
 
 	// 建立websocket连接
@@ -74,22 +73,22 @@ func (wl *WsListener) serve() {
 
 	// 其他错误
 	if err != nil {
-		wl.err_chan <- errors.New("事件服务器连接失败: " + err.Error())
+		wl.errChan <- errors.New("事件服务器连接失败: " + err.Error())
 		return
 	}
 	// 检查鉴权错误
-	if resp.StatusCode == 401 {
-		wl.err_chan <- errors.New("事件服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
+	if resp.StatusCode == http.StatusUnauthorized {
+		wl.errChan <- errors.New("事件服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
 		return
 	}
-	if resp.StatusCode == 403 {
-		wl.err_chan <- errors.New("事件服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
+	if resp.StatusCode == http.StatusForbidden {
+		wl.errChan <- errors.New("事件服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
 		return
 	}
 
 	defer c.Close(websocket.StatusInternalError, "internal error")
 	defer func() {
-		wl.is_serve = false
+		wl.isServe = false
 	}()
 
 	// 读取数据并发送到chan
@@ -101,10 +100,10 @@ func (wl *WsListener) serve() {
 			data := make(map[string]interface{})
 			err := wsjson.Read(wl.ctx, c, &data)
 			if err != nil {
-				wl.err_chan <- errors.New("事件读取错误: " + err.Error())
+				wl.errChan <- errors.New("事件读取错误: " + err.Error())
 				return
 			}
-			wl.send_chan <- data
+			wl.sendChan <- data
 		}
 	}
 }

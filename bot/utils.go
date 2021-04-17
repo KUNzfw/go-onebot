@@ -1,9 +1,3 @@
-/*
- * @Date: 2021-04-16 19:53:00
- * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-16 21:37:25
- * @FilePath: \go-onebot\bot\utils.go
- */
 package bot
 
 import (
@@ -21,8 +15,8 @@ type WsBot struct {
 
 // 创建WsBot的选项
 type WsBotOptions struct {
-	ctx          context.Context
-	access_token string
+	ctx         context.Context
+	accessToken string
 }
 
 // NewWsBot 创建一个WsBot
@@ -36,11 +30,11 @@ func NewWsBot(url string, opts *WsBotOptions) *WsBot {
 	}
 
 	// 创建caller, listener
-	caller := caller.CreateWsCaller(url, opts.access_token, opts.ctx)
-	listener := listener.CreateWsListener(url, opts.access_token, opts.ctx)
+	wsCaller := caller.CreateWsCaller(opts.ctx, url, opts.accessToken)
+	wsListener := listener.CreateWsListener(opts.ctx, url, opts.accessToken)
 	return &WsBot{
-		caller:   caller,
-		listener: listener,
+		caller:   wsCaller,
+		listener: wsListener,
 	}
 }
 

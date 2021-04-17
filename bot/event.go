@@ -1,9 +1,3 @@
-/*
- * @Date: 2021-04-16 19:53:00
- * @LastEditors: KUNzfw
- * @LastEditTime: 2021-04-17 09:49:29
- * @FilePath: \go-onebot\bot\event.go
- */
 package bot
 
 import (
@@ -39,8 +33,10 @@ func (handler *EventHandler) HandleEvent(bot listener.EventListener) error {
 		switch parseEvent(rawdata) {
 		case TypePrivateMesssage:
 			data := &EventPrivateMessage{}
-			mapstructure.Decode(rawdata, data)
-			handler.OnPrivateMessage(data)
+			if err := mapstructure.Decode(rawdata, data); err == nil {
+				handler.OnPrivateMessage(data)
+			}
+		default:
 		}
 	}
 }
