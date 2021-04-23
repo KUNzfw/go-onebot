@@ -3,7 +3,6 @@ package bot
 import (
 	"errors"
 
-	"github.com/KUNzfw/go-onebot/listener"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -23,9 +22,9 @@ type EventHandler struct {
 }
 
 // HandleEvent 监听并处理事件
-func (handler *EventHandler) HandleEvent(bot listener.EventListener) error {
+func (bot *Bot) HandleEvent(handler *EventHandler) error {
 	for {
-		rawdata, err := bot.Poll()
+		rawdata, err := bot.listener.Poll()
 		if err != nil {
 			return errors.New("监听事件时发生错误: " + err.Error())
 		}

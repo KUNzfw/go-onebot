@@ -1,13 +1,9 @@
 package bot
 
-import (
-	"github.com/KUNzfw/go-onebot/caller"
-)
-
 // SendPrivateMessage 发送私聊消息
-func SendPrivateMessage(bot caller.APICaller, userID int64, message string, autoEscape bool) (messageID int32, err error) {
+func (bot *Bot) SendPrivateMessage(userID int64, message string, autoEscape bool) (messageID int32, err error) {
 	resp := make(map[string]interface{})
-	if cerr := bot.Call("send_private_msg", map[string]interface{}{
+	if cerr := bot.caller.Call("send_private_msg", map[string]interface{}{
 		"user_id":     userID,
 		"message":     message,
 		"auto_escape": autoEscape,
