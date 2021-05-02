@@ -12,6 +12,8 @@ func main() {
 
 	if info, err := bot.GetLoginInfo(); err == nil {
 		log.Printf("登录的机器人是 %v (%v)", info.NickName, info.UserID)
+	} else {
+		log.Fatal("获取机器人信息时出现错误: ", err)
 	}
 
 	handler := onebot.EventHandler{
