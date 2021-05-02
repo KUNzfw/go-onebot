@@ -13,8 +13,8 @@ type WsBotOptions struct {
 	accessToken string
 }
 
-// NewWsBot 创建一个WsBot
-func NewWsBot(url string, opts *WsBotOptions) *Bot {
+// CreateWsBot 创建一个WsBot
+func CreateWsBot(url string, opts *WsBotOptions) *Bot {
 	// 处理配置
 	if opts == nil {
 		opts = &WsBotOptions{}

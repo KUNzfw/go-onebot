@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	bot := onebot.NewWsBot("ws://localhost:6700/", nil)
+	bot := onebot.CreateWsBot("ws://localhost:6700/", nil)
 	handler := onebot.EventHandler{
 		OnPrivateMessage: func(data *onebot.EventPrivateMessage) {
 			log.Printf("收到来自 %v (%v) 的私聊消息: %v\n", data.Sender.Nickname, data.Sender.UserID, data.Message)
