@@ -1,4 +1,4 @@
-package bot
+package onebot
 
 import (
 	"github.com/KUNzfw/go-onebot/caller"

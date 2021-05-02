@@ -1,4 +1,4 @@
-package bot
+package onebot
 
 // SendPrivateMessage 发送私聊消息
 func (bot *Bot) SendPrivateMessage(userID int64, message string, autoEscape bool) (messageID int32, err error) {

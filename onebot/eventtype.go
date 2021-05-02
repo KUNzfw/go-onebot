@@ -1,4 +1,4 @@
-package bot
+package onebot
 
 // 发送者
 type Sender struct {
