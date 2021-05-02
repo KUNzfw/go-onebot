@@ -9,8 +9,8 @@ import (
 
 // 创建WsBot的选项
 type WsBotOptions struct {
-	ctx         context.Context
-	accessToken string
+	Ctx         context.Context
+	AccessToken string
 }
 
 // CreateWsBot 创建一个WsBot
@@ -19,13 +19,13 @@ func CreateWsBot(url string, opts *WsBotOptions) *Bot {
 	if opts == nil {
 		opts = &WsBotOptions{}
 	}
-	if opts.ctx == nil {
-		opts.ctx = context.Background()
+	if opts.Ctx == nil {
+		opts.Ctx = context.Background()
 	}
 
 	// 创建caller, listener
-	wsCaller := caller.CreateWsCaller(opts.ctx, url, opts.accessToken)
-	wsListener := listener.CreateWsListener(opts.ctx, url, opts.accessToken)
+	wsCaller := caller.CreateWsCaller(opts.Ctx, url, opts.AccessToken)
+	wsListener := listener.CreateWsListener(opts.Ctx, url, opts.AccessToken)
 	return &Bot{
 		caller:   wsCaller,
 		listener: wsListener,
