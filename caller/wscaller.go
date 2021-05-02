@@ -57,16 +57,19 @@ func (wc *WsCaller) Call(action string, data map[string]interface{}, result inte
 	// 建立websocket连接
 	c, resp, err := websocket.Dial(ctx, wc.url, opts)
 
-	// 其他错误
 	if err != nil {
+		if resp != nil {
+			// 检查鉴权错误
+			if resp.StatusCode == http.StatusUnauthorized {
+				return errors.New("API服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
+			}
+			if resp.StatusCode == http.StatusForbidden {
+				return errors.New("API服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
+			}
+		}
+
+		// 其他错误
 		return errors.New("API服务器连接失败: " + err.Error())
-	}
-	// 检查鉴权错误
-	if resp.StatusCode == http.StatusUnauthorized {
-		return errors.New("API服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
-	}
-	if resp.StatusCode == http.StatusForbidden {
-		return errors.New("API服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
 	}
 
 	defer c.Close(websocket.StatusInternalError, "internal error")

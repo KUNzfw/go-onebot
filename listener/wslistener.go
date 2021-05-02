@@ -71,18 +71,21 @@ func (wl *WsListener) serve() {
 	// 建立websocket连接
 	c, resp, err := websocket.Dial(wl.ctx, wl.url, opts)
 
-	// 其他错误
 	if err != nil {
+		if resp != nil {
+			// 检查鉴权错误
+			if resp.StatusCode == http.StatusUnauthorized {
+				wl.errChan <- errors.New("事件服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
+				return
+			}
+			if resp.StatusCode == http.StatusForbidden {
+				wl.errChan <- errors.New("事件服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
+				return
+			}
+		}
+
+		// 其他错误
 		wl.errChan <- errors.New("事件服务器连接失败: " + err.Error())
-		return
-	}
-	// 检查鉴权错误
-	if resp.StatusCode == http.StatusUnauthorized {
-		wl.errChan <- errors.New("事件服务器连接失败: 401 Unauthorized, 可能因为访问密钥未提供")
-		return
-	}
-	if resp.StatusCode == http.StatusForbidden {
-		wl.errChan <- errors.New("事件服务器连接失败: 403 Forbidden, 可能因为访问密钥错误")
 		return
 	}
 
